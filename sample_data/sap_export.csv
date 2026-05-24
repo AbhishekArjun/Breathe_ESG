@@ -1,0 +1,5 @@
+Buchungsdatum,Materialkurztext,Menge,Basiseinheit,Werk
+2023-01-15,Diesel Fuel,500.5,L,1001
+2023-01-16,Office Supplies,10,EA,1001
+2023-01-17,Heating Oil,-50,L,1002
+2023-01-18,,100,,1001
