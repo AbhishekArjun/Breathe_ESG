@@ -34,11 +34,17 @@ class IngestionJobViewSet(viewsets.ModelViewSet):
         except DataSource.DoesNotExist:
             return Response({'error': 'DataSource not found'}, status=status.HTTP_404_NOT_FOUND)
             
-        file_content = file_obj.read().decode('utf-8')
-        
+        raw_content = file_obj.read()
+        file_content = raw_content.decode('utf-8', errors='replace').strip()
+        if file_content.startswith('\ufeff'):
+            file_content = file_content[1:]
+            
         job = IngestionJob.objects.create(data_source=data_source, status='PROCESSING')
         
         try:
+            if not file_content:
+                raise Exception("The uploaded file is empty.")
+                
             if data_source.source_type == 'SAP':
                 process_sap_csv(job, file_content)
             elif data_source.source_type == 'UTILITY':
@@ -46,10 +52,15 @@ class IngestionJobViewSet(viewsets.ModelViewSet):
             elif data_source.source_type == 'TRAVEL':
                 process_travel_json(job, file_content)
                 
-            job.status = 'COMPLETED'
+            # Parsers might have set status to FAILED and saved the job
+            job.refresh_from_db()
+            if job.status != 'FAILED':
+                job.status = 'COMPLETED'
         except Exception as e:
             job.status = 'FAILED'
-            job.summary_notes = str(e)
+            safe_content = repr(file_content[:50])
+            job.summary_notes = f"{str(e)} | Content start: {safe_content}"
+            job.save()
             
         job.completed_at = timezone.now()
         job.save()

@@ -16,9 +16,7 @@ export const uploadData = (dataSourceId, file) => {
   const formData = new FormData();
   formData.append('data_source_id', dataSourceId);
   formData.append('file', file);
-  return api.post('ingestion-jobs/upload/', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  return axios.post(`${API_URL}ingestion-jobs/upload/`, formData);
 };
 export const getRecords = () => api.get('records/');
 export const approveRecord = (id, user) => api.post(`records/${id}/approve/`, { user });

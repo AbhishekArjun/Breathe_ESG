@@ -101,7 +101,7 @@ def process_travel_json(job: IngestionJob, file_content: str):
         data = json.loads(file_content)
     except json.JSONDecodeError as e:
         job.status = 'FAILED'
-        job.summary_notes = f"Invalid JSON: {e}"
+        job.summary_notes = f"Invalid JSON: {e} | Content: {repr(file_content[:50])}"
         job.save()
         return
 
