@@ -6,8 +6,6 @@ __pycache__/
 venv/
 env/
 .env
-db.sqlite3
-
 # Node
 node_modules/
 dist/
